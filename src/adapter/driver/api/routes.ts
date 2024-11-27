@@ -30,26 +30,6 @@ import {
       handler: 'makeCheckout',
     },
     {
-      resource: '/pedidos',
-      method: HttpMethod.GET,
-      middleware: (
-        _request: ExpressRequest,
-        _response: ExpressResponse,
-        next: ExpressNextFuction,
-      ) => next(),
-      handler: 'searchOrders',
-    },
-    {
-      resource: '/pedidos/:id/atualizar-status',
-      method: HttpMethod.PUT,
-      middleware: (
-        _request: ExpressRequest,
-        _response: ExpressResponse,
-        next: ExpressNextFuction,
-      ) => next(),
-      handler: 'updateOrderStatus',
-    },
-    {
       resource: '/pedidos/:id/pagamento',
       method: HttpMethod.GET,
       middleware: (

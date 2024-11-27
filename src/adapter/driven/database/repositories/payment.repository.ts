@@ -2,7 +2,7 @@ import {
     Payment,
     PaymentCurrentStatus,
     PaymentType,
-  } from '@core/domain/entities'
+  } from '@core/domain/entities/payment'
   import { IPaymentRepository, PaymentParams } from '@core/domain/repositories'
   import { DomainException, ExceptionCause } from '@core/domain/base'
   import { PostgresConnectionAdapter } from '../postgres-connection.adapter'

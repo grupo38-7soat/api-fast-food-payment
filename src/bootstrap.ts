@@ -13,7 +13,6 @@ import {
 import { ExpressHttpServerAdapter } from '@adapter/driver/api/express-server.adapter'
 import { IHttpServer } from '@adapter/driver/api/types/http-server'
 import { PostgresConnectionAdapter } from '@adapter/driven/database/postgres-connection.adapter'
-import { CustomerRepository } from '@adapter/driven/database/repositories'
 import { PaymentRepository } from '@adapter/driven/database/repositories/payment.repository'
 import { OrderRepository } from '@adapter/driven/database/repositories/order.repository'
 import { MercadoPagoAdapter } from '@adapter/driven/payment-solution/mercado-pago.adapter'

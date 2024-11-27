@@ -1,7 +1,5 @@
 export * from './types/order'
 export * from './order/make-checkout.use-case'
-export * from './order/search-orders.use-case'
-export * from './order/update-order-status.use-case'
 export * from './order/get-order-payment.use-case'
 export * from './order/listen-order-payment.use-case'
 export * from './types/payment-solution'
