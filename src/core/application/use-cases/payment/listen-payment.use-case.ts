@@ -1,18 +1,14 @@
-import { IOrderRepository, IPaymentRepository } from '@core/domain/repositories'
-import { OrderCurrentStatus, PaymentCurrentStatus } from '@core/domain/entities'
+import { IPaymentRepository } from '@core/domain/repositories'
+import { PaymentCurrentStatus } from '@core/domain/entities'
 import { formatDateWithTimezone } from '@core/application/helpers'
-import {
-  IListenOrderPaymentUseCase,
-  ListenOrderPaymentInput,
-} from '../types/order'
+import { IListenPaymentUseCase, ListenPaymentInput } from '../types/payment'
 import {
   ExternalPaymentStatus,
   IPaymentSolution,
 } from '../types/payment-solution'
 
-export class ListenOrderPaymentUseCase implements IListenOrderPaymentUseCase {
+export class ListenPaymentUseCase implements IListenPaymentUseCase {
   constructor(
-    private readonly orderRepository: IOrderRepository,
     private readonly paymentRepository: IPaymentRepository,
     private readonly paymentSolution: IPaymentSolution,
   ) {}
@@ -20,17 +16,13 @@ export class ListenOrderPaymentUseCase implements IListenOrderPaymentUseCase {
   async execute({
     action,
     externalPaymentId,
-  }: ListenOrderPaymentInput): Promise<void> {
+  }: ListenPaymentInput): Promise<void> {
     if (!action || !externalPaymentId) return
     const [, currentAction] = action.split('.')
     if (currentAction !== 'updated') return
     const payment =
       await this.paymentRepository.findPaymentByExternalId(externalPaymentId)
     if (!payment) return
-    const order = await this.orderRepository.findOrderByPaymentId(
-      payment.getId(),
-    )
-    if (!order) return
     const externalPayment = await this.paymentSolution.findPayment(
       Number(externalPaymentId),
     )
@@ -47,12 +39,7 @@ export class ListenOrderPaymentUseCase implements IListenOrderPaymentUseCase {
         payment.getPaymentStatus(),
         currentDate,
       )
-      order.cancelOrder()
-      await this.orderRepository.updateOrderStatus(
-        order.getId(),
-        OrderCurrentStatus.CANCELADO,
-        currentDate,
-      )
+      // TODO: vai sensibilizar o micro de pedidos via mensageria
       return
     }
     if (externalPayment.status === ExternalPaymentStatus.approved) {
@@ -63,6 +50,7 @@ export class ListenOrderPaymentUseCase implements IListenOrderPaymentUseCase {
         payment.getPaymentStatus(),
         currentDate,
       )
+      // TODO: vai sensibilizar o micro de pedidos via mensageria
     }
   }
 }

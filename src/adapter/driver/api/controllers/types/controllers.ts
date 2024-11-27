@@ -7,16 +7,16 @@ export interface IHealthController {
   ): Promise<ExpressResponse>
 }
 
-export interface IOrderController {
-  makeCheckout(
+export interface IPaymentController {
+  createPayment(
     request: ExpressRequest,
     response: ExpressResponse,
   ): Promise<ExpressResponse>
-  getOrderPayment(
+  getPayment(
     request: ExpressRequest,
     response: ExpressResponse,
   ): Promise<ExpressResponse>
-  listenOrderPayment(
+  listenPayment(
     request: ExpressRequest,
     response: ExpressResponse,
   ): Promise<ExpressResponse>

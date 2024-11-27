@@ -1,25 +1,26 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import {
-  IGetOrderPaymentUseCase,
-  IListenOrderPaymentUseCase,
-  IMakeCheckoutUseCase,
+  IGetPaymentUseCase,
+  IListenPaymentUseCase,
+  ICreatePaymentUseCase,
 } from '@core/application/use-cases'
-import { IOrderController } from './types/controllers'
 import { HttpResponseHelper } from '../helpers'
+import { IPaymentController } from './types/controllers'
 
-export class OrderController implements IOrderController {
+export class PaymentController implements IPaymentController {
   constructor(
-    private readonly makeCheckoutUseCase: IMakeCheckoutUseCase,
-    private readonly getOrderPaymentUseCase: IGetOrderPaymentUseCase,
-    private readonly listenOrderPaymentUseCase: IListenOrderPaymentUseCase,
+    private readonly CreatePaymentUseCase: ICreatePaymentUseCase,
+    private readonly getPaymentUseCase: IGetPaymentUseCase,
+    private readonly listenPaymentUseCase: IListenPaymentUseCase,
   ) {}
 
-  async makeCheckout(
+  // esse vai sair
+  async createPayment(
     request: ExpressRequest,
     response: ExpressResponse,
   ): Promise<ExpressResponse> {
     try {
-      const orderData = await this.makeCheckoutUseCase.execute({
+      const orderData = await this.CreatePaymentUseCase.execute({
         customerId: request.body.customerId,
         items: request.body.items,
         orderAmount: request.body.orderAmount,
@@ -31,13 +32,13 @@ export class OrderController implements IOrderController {
     }
   }
 
-  async getOrderPayment(
+  async getPayment(
     request: ExpressRequest,
     response: ExpressResponse,
   ): Promise<ExpressResponse> {
     try {
       const orderId = request.params.id
-      const orderPaymentData = await this.getOrderPaymentUseCase.execute({
+      const orderPaymentData = await this.getPaymentUseCase.execute({
         orderId: Number(orderId),
       })
       return HttpResponseHelper.onSucess(response, { data: orderPaymentData })
@@ -46,13 +47,13 @@ export class OrderController implements IOrderController {
     }
   }
 
-  async listenOrderPayment(
+  async listenPayment(
     request: ExpressRequest,
     response: ExpressResponse,
   ): Promise<ExpressResponse> {
     try {
       const { action, data } = request.body
-      await this.listenOrderPaymentUseCase.execute({
+      await this.listenPaymentUseCase.execute({
         action,
         externalPaymentId: data?.id,
       })

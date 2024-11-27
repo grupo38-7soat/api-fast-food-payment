@@ -1,20 +1,17 @@
 import { globalEnvs } from '@config/envs/global'
 import {
-  GetOrderPaymentUseCase,
-  ListenOrderPaymentUseCase,
-  MakeCheckoutUseCase,
-  SearchOrdersUseCase,
-  UpdateOrderStatusUseCase
+  GetPaymentUseCase,
+  ListenPaymentUseCase,
+  CreatePaymentUseCase,
 } from '@core/application/use-cases'
 import {
   HealthController,
-  OrderController,
+  PaymentController,
 } from '@adapter/driver/api/controllers'
 import { ExpressHttpServerAdapter } from '@adapter/driver/api/express-server.adapter'
 import { IHttpServer } from '@adapter/driver/api/types/http-server'
 import { PostgresConnectionAdapter } from '@adapter/driven/database/postgres-connection.adapter'
 import { PaymentRepository } from '@adapter/driven/database/repositories/payment.repository'
-import { OrderRepository } from '@adapter/driven/database/repositories/order.repository'
 import { MercadoPagoAdapter } from '@adapter/driven/payment-solution/mercado-pago.adapter'
 import { HttpClientAdapter } from '@adapter/driven/http/http-client.adapter'
 
@@ -25,30 +22,23 @@ const httpClientAdapter = new HttpClientAdapter(
 const paymentSolution = new MercadoPagoAdapter(httpClientAdapter)
 // repositories
 const paymentRepository = new PaymentRepository(postgresConnectionAdapter)
-const orderRepository = new OrderRepository(postgresConnectionAdapter)
 // useCases
-const makeCheckoutUseCase = new MakeCheckoutUseCase(
+const createPaymentUseCase = new CreatePaymentUseCase(
   paymentRepository,
-  orderRepository,
   paymentSolution,
 )
-const searchOrdersUseCase = new SearchOrdersUseCase(orderRepository)
-const updateOrderStatusUseCase = new UpdateOrderStatusUseCase(orderRepository)
-const getOrderPaymentUseCase = new GetOrderPaymentUseCase(paymentRepository)
-const listenOrderPaymentUseCase = new ListenOrderPaymentUseCase(
-  orderRepository,
+const getPaymentUseCase = new GetPaymentUseCase(paymentRepository)
+const listenPaymentUseCase = new ListenPaymentUseCase(
   paymentRepository,
   paymentSolution,
 )
 // controllers
 const healthController = new HealthController()
 
-const orderController = new OrderController(
-  makeCheckoutUseCase,
-  searchOrdersUseCase,
-  updateOrderStatusUseCase,
-  getOrderPaymentUseCase,
-  listenOrderPaymentUseCase,
+const orderController = new PaymentController(
+  createPaymentUseCase,
+  getPaymentUseCase,
+  listenPaymentUseCase,
 )
 const server: IHttpServer = new ExpressHttpServerAdapter(
   healthController,

@@ -416,13 +416,13 @@
             "Pedido"
           ],
           "summary": "Realiza um checkout",
-          "operationId": "makeCheckout",
+          "operationId": "CreatePayment",
           "requestBody": {
             "required": true,
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MakeCheckoutRequestBody"
+                  "$ref": "#/components/schemas/CreatePaymentRequestBody"
                 }
               }
             }
@@ -433,7 +433,7 @@
               "content": {
                 "application/json": {
                   "schema": {
-                    "$ref": "#/components/schemas/MakeCheckoutResponseBody"
+                    "$ref": "#/components/schemas/CreatePaymentResponseBody"
                   }
                 }
               }
@@ -607,7 +607,7 @@
             "Pedido"
           ],
           "summary": "Busca os detalhes do pagamento do pedido",
-          "operationId": "getOrderPayment",
+          "operationId": "getPayment",
           "parameters": [
             {
               "name": "id",
@@ -625,7 +625,7 @@
               "content": {
                 "application/json": {
                   "schema": {
-                    "$ref": "#/components/schemas/GetOrderPaymentResponseBody"
+                    "$ref": "#/components/schemas/GetPaymentResponseBody"
                   }
                 }
               }
@@ -669,13 +669,13 @@
             "Pedido"
           ],
           "summary": "Recebe atualizações do pagamento vindas do Mercado Pago",
-          "operationId": "listenOrderPayment",
+          "operationId": "listenPayment",
           "requestBody": {
             "required": true,
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListenOrderPaymentRequestBody"
+                  "$ref": "#/components/schemas/ListenPaymentRequestBody"
                 }
               }
             }
@@ -686,7 +686,7 @@
               "content": {
                 "application/json": {
                   "schema": {
-                    "$ref": "#/components/schemas/ListenOrderPaymentResponseBody"
+                    "$ref": "#/components/schemas/ListenPaymentResponseBody"
                   }
                 }
               }
@@ -975,7 +975,7 @@
             }
           }
         },
-        "MakeCheckoutRequestBody": {
+        "CreatePaymentRequestBody": {
           "type": "object",
           "properties": {
             "customerId": {
@@ -1035,7 +1035,7 @@
             "payment"
           ]
         },
-        "MakeCheckoutResponseBody": {
+        "CreatePaymentResponseBody": {
           "type": "object",
           "properties": {
             "data": {
@@ -1240,7 +1240,7 @@
             }
           }
         },
-        "GetOrderPaymentResponseBody": {
+        "GetPaymentResponseBody": {
           "type": "object",
           "properties": {
             "data": {
@@ -1287,7 +1287,7 @@
             }
           }
         },
-        "ListenOrderPaymentRequestBody": {
+        "ListenPaymentRequestBody": {
           "type": "object",
           "properties": {
             "action": {
@@ -1307,7 +1307,7 @@
             }
           }
         },
-        "ListenOrderPaymentResponseBody": {
+        "ListenPaymentResponseBody": {
           "type": "object",
           "properties": {
             "data": {
@@ -1360,4 +1360,3 @@
       }
     }
   }
-  

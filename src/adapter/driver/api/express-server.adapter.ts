@@ -3,13 +3,10 @@ import swaggerUI from 'swagger-ui-express'
 import swaggerDocument from './config/swagger/swagger.json'
 import { IHttpServer } from './types/http-server'
 import {
-  IOrderController,
+  IPaymentController,
   IHealthController,
 } from './controllers/types/controllers'
-import {
-  orderRoutes,
-  healthRoutes,
-} from './routes'
+import { paymentRoutes, healthRoutes } from './routes'
 
 export class ExpressHttpServerAdapter implements IHttpServer {
   app: Express
@@ -17,7 +14,7 @@ export class ExpressHttpServerAdapter implements IHttpServer {
 
   constructor(
     private readonly healthController: IHealthController,
-    private readonly orderController: IOrderController,
+    private readonly orderController: IPaymentController,
   ) {
     this.app = express()
     this.app.use(express.json())
@@ -28,7 +25,7 @@ export class ExpressHttpServerAdapter implements IHttpServer {
 
   private configRoutes(): void {
     this.configHealthRoutes()
-    this.configOrderRoutes()
+    this.configPaymentRoutes()
     this.app.use(this.router)
   }
 
@@ -45,8 +42,8 @@ export class ExpressHttpServerAdapter implements IHttpServer {
     })
   }
 
-  private configOrderRoutes(): void {
-    orderRoutes.forEach(route => {
+  private configPaymentRoutes(): void {
+    paymentRoutes.forEach(route => {
       console.log(
         `[HttpServer] Rota ${route.method.toUpperCase()} ${route.resource}`,
       )
