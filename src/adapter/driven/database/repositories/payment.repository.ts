@@ -95,7 +95,6 @@ export class PaymentRepository implements IPaymentRepository {
         rows[0].effective_date,
         rows[0].id,
         rows[0].external_id,
-
         rows[0].effective_date,
         rows[0].updated_at,
         rows[0].order_id,
