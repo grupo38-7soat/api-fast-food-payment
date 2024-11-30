@@ -1,9 +1,18 @@
 import { PaymentCurrentStatus, PaymentType } from '@core/domain/entities'
 
-type Item = {
+export type Item = {
   id: number
   quantity: number
   observation?: string
+}
+
+export enum OrderCurrentStatus {
+  PENDENTE = 'PENDENTE',
+  RECEBIDO = 'RECEBIDO',
+  EM_PREPARO = 'EM_PREPARO',
+  PRONTO = 'PRONTO',
+  FINALIZADO = 'FINALIZADO',
+  CANCELADO = 'CANCELADO',
 }
 
 type Payment = {
@@ -11,9 +20,9 @@ type Payment = {
 }
 
 export type CreatePaymentInput = {
-  customerId?: string
-  items: Item[]
+  orderId: number
   orderAmount: number
+  items: Item[]
   payment: Payment
 }
 

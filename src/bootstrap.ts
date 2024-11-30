@@ -14,6 +14,12 @@ import { PostgresConnectionAdapter } from '@adapter/driven/database/postgres-con
 import { PaymentRepository } from '@adapter/driven/database/repositories/payment.repository'
 import { MercadoPagoAdapter } from '@adapter/driven/payment-solution/mercado-pago.adapter'
 import { HttpClientAdapter } from '@adapter/driven/http/http-client.adapter'
+import { IAMQPServer } from '@adapter/driver/message-broker/types/message-broker'
+import { AMQPServerAdapter } from '@adapter/driver/message-broker/amqp-server.adapter'
+import { MessageBrokerAdapter } from '@adapter/driver/message-broker/message-broker.adapter'
+const messageBrokerAdapter = new MessageBrokerAdapter(
+  globalEnvs.messageBroker.url,
+)
 
 const postgresConnectionAdapter = new PostgresConnectionAdapter()
 const httpClientAdapter = new HttpClientAdapter(
@@ -26,22 +32,28 @@ const paymentRepository = new PaymentRepository(postgresConnectionAdapter)
 const createPaymentUseCase = new CreatePaymentUseCase(
   paymentRepository,
   paymentSolution,
+  messageBrokerAdapter,
 )
 const getPaymentUseCase = new GetPaymentUseCase(paymentRepository)
 const listenPaymentUseCase = new ListenPaymentUseCase(
   paymentRepository,
   paymentSolution,
+  messageBrokerAdapter,
 )
 // controllers
 const healthController = new HealthController()
-
-const orderController = new PaymentController(
+const paymentController = new PaymentController(
   createPaymentUseCase,
   getPaymentUseCase,
   listenPaymentUseCase,
 )
-const server: IHttpServer = new ExpressHttpServerAdapter(
-  healthController,
-  orderController,
+const amqpServer: IAMQPServer = new AMQPServerAdapter(
+  messageBrokerAdapter,
+  createPaymentUseCase,
 )
-server.run(globalEnvs.api.serverPort)
+amqpServer.run(globalEnvs.messageBroker.paymentQueue)
+const httpServer: IHttpServer = new ExpressHttpServerAdapter(
+  healthController,
+  paymentController,
+)
+httpServer.run(globalEnvs.api.serverPort)

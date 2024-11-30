@@ -1,3 +1,4 @@
+import { formatDateWithTimezone } from '@core/application/helpers'
 import { PaymentStatus, PaymentStatusFactory } from '../value-objects'
 
 export enum PaymentType {
@@ -32,6 +33,7 @@ export class Payment {
   private createdAt: string
   private updatedAt: string
   private externalId: string
+  private orderId: number
 
   constructor(
     type: PaymentType,
@@ -41,6 +43,7 @@ export class Payment {
     externalId?: string,
     createdAt?: string,
     updatedAt?: string,
+    orderId?: number,
   ) {
     this.setId(id)
     this.setExternalId(externalId)
@@ -48,6 +51,7 @@ export class Payment {
     this.setEffectiveDate(effectiveDate)
     this.setCreatedAt(createdAt)
     this.setUpdatedAt(updatedAt)
+    this.setOrderId(orderId)
     this.paymentStatus = PaymentStatusFactory.create(this, currentStatus)
   }
 
@@ -116,6 +120,16 @@ export class Payment {
     return this.updatedAt
   }
 
+  private setOrderId(value: number): void {
+    if (value) {
+      this.orderId = value
+    }
+  }
+
+  public getOrderId(): number {
+    return this.orderId
+  }
+
   public authorizePayment(): void {
     this.paymentStatus.authorize()
   }
@@ -134,8 +148,8 @@ export class Payment {
       externalId: this.externalId,
       type: this.type,
       paymentStatus: this.getPaymentStatus(),
-      effectiveDate: this.effectiveDate,
-      updatedAt: this.updatedAt,
+      effectiveDate: formatDateWithTimezone(new Date(this.effectiveDate)),
+      updatedAt: formatDateWithTimezone(new Date(this.updatedAt)),
     }
   }
 }

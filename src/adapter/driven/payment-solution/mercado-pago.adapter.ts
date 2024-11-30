@@ -45,6 +45,8 @@ export class MercadoPagoAdapter implements IPaymentSolution {
       },
     })
     console.log('[MercadoPagoAdapter] Pagamento encontrado com sucesso')
+    // Descomentar a linha abaixo para simular a aprovação pagamento
+    // data.status = ExternalPaymentStatus.approved
     return data
   }
 }

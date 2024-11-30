@@ -1,7 +1,14 @@
+import { randomUUID } from 'crypto'
+import { globalEnvs } from '@config/envs/global'
 import { IPaymentRepository } from '@core/domain/repositories'
 import { PaymentCurrentStatus } from '@core/domain/entities'
 import { formatDateWithTimezone } from '@core/application/helpers'
-import { IListenPaymentUseCase, ListenPaymentInput } from '../types/payment'
+import { IMessageBroker } from '@core/application/message-broker'
+import {
+  IListenPaymentUseCase,
+  ListenPaymentInput,
+  OrderCurrentStatus,
+} from '../types/payment'
 import {
   ExternalPaymentStatus,
   IPaymentSolution,
@@ -11,6 +18,7 @@ export class ListenPaymentUseCase implements IListenPaymentUseCase {
   constructor(
     private readonly paymentRepository: IPaymentRepository,
     private readonly paymentSolution: IPaymentSolution,
+    private readonly messageBroker: IMessageBroker,
   ) {}
 
   async execute({
@@ -39,7 +47,14 @@ export class ListenPaymentUseCase implements IListenPaymentUseCase {
         payment.getPaymentStatus(),
         currentDate,
       )
-      // TODO: vai sensibilizar o micro de pedidos via mensageria
+      await this.messageBroker.publish(globalEnvs.messageBroker.orderQueue, {
+        id: randomUUID(),
+        payload: {
+          orderId: payment.getOrderId(),
+          status: OrderCurrentStatus.CANCELADO,
+          payment: payment.toJson(),
+        },
+      })
       return
     }
     if (externalPayment.status === ExternalPaymentStatus.approved) {
@@ -50,7 +65,14 @@ export class ListenPaymentUseCase implements IListenPaymentUseCase {
         payment.getPaymentStatus(),
         currentDate,
       )
-      // TODO: vai sensibilizar o micro de pedidos via mensageria
+      await this.messageBroker.publish(globalEnvs.messageBroker.orderQueue, {
+        id: randomUUID(),
+        payload: {
+          orderId: payment.getOrderId(),
+          status: OrderCurrentStatus.RECEBIDO,
+          payment: payment.toJson(),
+        },
+      })
     }
   }
 }
