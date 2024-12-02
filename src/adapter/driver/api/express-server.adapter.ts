@@ -14,7 +14,7 @@ export class ExpressHttpServerAdapter implements IHttpServer {
 
   constructor(
     private readonly healthController: IHealthController,
-    private readonly orderController: IPaymentController,
+    private readonly paymentController: IPaymentController,
   ) {
     this.app = express()
     this.app.use(express.json())
@@ -50,7 +50,7 @@ export class ExpressHttpServerAdapter implements IHttpServer {
       this.router[route.method](
         route.resource,
         route.middleware,
-        this.orderController[route.handler].bind(this.orderController),
+        this.paymentController[route.handler].bind(this.paymentController),
       )
     })
   }

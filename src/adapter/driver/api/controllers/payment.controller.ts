@@ -21,10 +21,10 @@ export class PaymentController implements IPaymentController {
   ): Promise<ExpressResponse> {
     try {
       const orderData = await this.CreatePaymentUseCase.execute({
-        customerId: request.body.customerId,
         items: request.body.items,
         orderAmount: request.body.orderAmount,
         payment: request.body.payment,
+        orderId: request.body.orderId,
       })
       return HttpResponseHelper.onSucess(response, { data: orderData })
     } catch (error) {
