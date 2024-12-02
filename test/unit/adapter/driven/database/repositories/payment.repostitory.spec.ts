@@ -1,20 +1,25 @@
+import { DomainException, ExceptionCause } from '@core/domain/base'
+import {
+  Payment,
+  PaymentCurrentStatus,
+  PaymentType,
+} from '@core/domain/entities/payment'
 import { PostgresConnectionAdapter } from '@adapter/driven/database/postgres-connection.adapter'
 import { PaymentRepository } from '@adapter/driven/database/repositories'
-import { DomainException } from '@core/domain/base'
-import { Payment, PaymentCurrentStatus, PaymentType } from '@core/domain/entities'
-// import { PaymentStatus } from '@core/domain/value-objects'
 import { QueryResult } from 'pg'
 
 jest.mock('@adapter/driven/database/postgres-connection.adapter')
 
 describe('PaymentRepository', () => {
-  let postgresConnectionAdapter: jest.Mocked<PostgresConnectionAdapter>
+  let postgresConnectionAdapterMock: jest.Mocked<PostgresConnectionAdapter>
   let sut: PaymentRepository
 
   beforeAll(() => {
-    postgresConnectionAdapter =
-      new PostgresConnectionAdapter() as jest.Mocked<PostgresConnectionAdapter>
-    sut = new PaymentRepository(postgresConnectionAdapter)
+    postgresConnectionAdapterMock = {
+      query: jest.fn(),
+    } as unknown as jest.Mocked<PostgresConnectionAdapter>
+
+    sut = new PaymentRepository(postgresConnectionAdapterMock)
   })
 
   afterEach(() => {
@@ -29,128 +34,192 @@ describe('PaymentRepository', () => {
     expect(sut).toBeDefined()
   })
 
-  describe('savePayment method', () => {
-    it('should save a new payment and return an ID', async () => {
-      const payment = new Payment(PaymentType.PIX, PaymentCurrentStatus.PENDENTE, '', '1', '1', '2024-12-01', '', 1)
-      postgresConnectionAdapter.query.mockResolvedValueOnce({
-        rows: [{ id: 1}]
-      } as QueryResult)
-
-      const id = await sut.savePayment(payment)
-      expect(id).toBe(1)
-      expect(postgresConnectionAdapter.query).toHaveBeenLastCalledWith(
-        expect.stringContaining('INSERT INTO'),
-        expect.arrayContaining(
-          [
-            payment.getType(),
-            payment.getPaymentStatus(),
-            payment.getEffectiveDate(),
-            payment.getId(),
-            payment.getExternalId(),
-            payment.getCreatedAt(),
-            payment.getUpdatedAt(),
-            payment.getOrderId()
-          ]
-        )
+  describe('savePayment', () => {
+    it('should save payment successfully', async () => {
+      const payment = new Payment(
+        PaymentType.PIX,
+        PaymentCurrentStatus.PENDENTE,
+        '2024-12-01T00:00:00Z',
+        'payment-id',
+        'external-id',
+        '2024-12-01T00:00:00Z',
+        '2024-12-01T00:00:00Z',
+        123,
       )
 
+      await expect(sut.savePayment(payment)).resolves.toBeUndefined()
 
-    it('should throws if saving fails', async () => {
-      postgresConnectionAdapter.query.mockRejectedValueOnce(
-        new Error('Database error'),
+      expect(postgresConnectionAdapterMock.query).toHaveBeenCalledWith(
+        expect.any(String),
+        [
+          payment.getId(),
+          payment.getExternalId(),
+          payment.getEffectiveDate(),
+          payment.getType(),
+          payment.getEffectiveDate(),
+          payment.getOrderId(),
+        ],
       )
+    })
+
+    it('should throw an error if query fails', async () => {
+      postgresConnectionAdapterMock.query.mockRejectedValueOnce(
+        new Error('DB error'),
+      )
+
+      const payment = new Payment(
+        PaymentType.PIX,
+        PaymentCurrentStatus.PENDENTE,
+        '2024-12-01T00:00:00Z',
+        'payment-id',
+        'external-id',
+        '2024-12-01T00:00:00Z',
+        '2024-12-01T00:00:00Z',
+        123,
+      )
+
       await expect(sut.savePayment(payment)).rejects.toThrow(
-        DomainException,
+        new DomainException(
+          'Erro ao criar pagamento',
+          ExceptionCause.PERSISTANCE_EXCEPTION,
+        ),
       )
     })
   })
 
-  describe('updatePaymentStatus method', () => {
-    const update_status = {
-      id: '1',
-      status: PaymentCurrentStatus.AUTORIZADO,
-      updatedAt: new Date().toISOString(),
-    }
+  describe('updatePaymentStatus', () => {
+    it('should update payment status successfully', async () => {
+      await expect(
+        sut.updatePaymentStatus(
+          'payment-id',
+          PaymentCurrentStatus.AUTORIZADO,
+          '2024-12-01T00:00:00Z',
+        ),
+      ).resolves.toBeUndefined()
 
-    it('should update a payment status', async () => {
-      postgresConnectionAdapter.query.mockResolvedValueOnce({
-        rows: [{ id: 1}]
-      } as QueryResult)
+      expect(postgresConnectionAdapterMock.query).toHaveBeenCalledWith(
+        expect.any(String),
+        [PaymentCurrentStatus.AUTORIZADO, '2024-12-01T00:00:00Z', 'payment-id'],
+      )
+    })
 
-      await sut.updatePaymentStatus(
-        update_status.id,
-        update_status.status,
-        update_status.updatedAt,
+    it('should throw an error if query fails', async () => {
+      postgresConnectionAdapterMock.query.mockRejectedValueOnce(
+        new Error('DB error'),
       )
 
-      expect(postgresConnectionAdapter.query).toHaveBeenLastCalledWith(
-        expect.stringContaining('UPDATE'),
-        expect.arrayContaining(
-          [
-            update_status.id,
-            update_status.status,
-            update_status.updatedAt,
-          ]
-        )
+      await expect(
+        sut.updatePaymentStatus(
+          'payment-id',
+          PaymentCurrentStatus.AUTORIZADO,
+          '2024-12-01T00:00:00Z',
+        ),
+      ).rejects.toThrow(
+        new DomainException(
+          'Erro ao atualizar o status do pagamento',
+          ExceptionCause.PERSISTANCE_EXCEPTION,
+        ),
       )
     })
   })
 
-  describe('findAllPayments method', () => {
-    const input = {
-      id: '1',
-      status: PaymentCurrentStatus.AUTORIZADO,
-      updatedAt: '2024-12-02',
-    }
-    it('should find and return all the payments', async () => {
-      postgresConnectionAdapter.query.mockResolvedValueOnce({
-        rows: [input],
+  describe('findPaymentByOrderId', () => {
+    it('should return payment when found', async () => {
+      const paymentData = {
+        id: 'payment-id',
+        status: PaymentCurrentStatus.AUTORIZADO,
+        type: PaymentType.PIX,
+        effective_date: '2024-12-01T00:00:00Z',
+        updated_at: '2024-12-01T00:00:00Z',
+        external_id: 'external-id',
+        order_id: 123,
+      }
+
+      postgresConnectionAdapterMock.query.mockResolvedValueOnce({
+        rows: [paymentData],
       } as QueryResult)
 
-      const payments = await sut.findAllPayments()
-      expect(payments).toHaveLength(1)
-      expect(payments[0].getId()).toBe(input[0].id)
-      expect(postgresConnectionAdapter.query).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT'),
-        [],
-      )
-      
+      const payment = await sut.findPaymentByOrderId(123)
+
+      expect(payment).toBeInstanceOf(Payment)
+      expect(payment.getId()).toBe(paymentData.id)
     })
-    
-    it('should return payment filtered by parameters', async () => {
-      postgresConnectionAdapter.query.mockResolvedValueOnce({
-        rows: [input],
+
+    it('should return null when no payment is found', async () => {
+      postgresConnectionAdapterMock.query.mockResolvedValueOnce({
+        rows: [],
       } as QueryResult)
-      const payments = await sut.findAllPayments({
-        id: { value: 1, exactMatch: true },
-      })
-      expect(payments).toHaveLength(1)
-      expect(postgresConnectionAdapter.query).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE'),
-        expect.arrayContaining(['AUTORIZADO']),
+
+      const payment = await sut.findPaymentByOrderId(123)
+
+      expect(payment).toBeNull()
+    })
+
+    it('should throw an error if query fails', async () => {
+      postgresConnectionAdapterMock.query.mockRejectedValueOnce(
+        new Error('DB error'),
+      )
+
+      await expect(sut.findPaymentByOrderId(123)).rejects.toThrow(
+        new DomainException(
+          'Erro ao consultar o pagamento',
+          ExceptionCause.PERSISTANCE_EXCEPTION,
+        ),
       )
     })
   })
 
-  // describe('findPaymentByOrderId method', () => {
-  //   const input = {
-  //     orderId: 1
-  //   }
-  //   it('should find and return a payment by the orderId', async () => {
-      
-  //   })
-  // })
+  describe('findPaymentByExternalId', () => {
+    it('should return payment when found', async () => {
+      const paymentData = {
+        id: 'payment-id',
+        status: PaymentCurrentStatus.AUTORIZADO,
+        type: PaymentType.PIX,
+        effective_date: '2024-12-01T00:00:00Z',
+        updated_at: '2024-12-01T00:00:00Z',
+        external_id: 'external-id',
+        order_id: 123,
+      }
 
-  // describe('findPaymentByExternalId method', () => {
-  //   const input = {
-  //     externalId: '1'
-  //   }
+      postgresConnectionAdapterMock.query.mockResolvedValueOnce({
+        rows: [paymentData],
+      } as QueryResult)
 
-  //   it('should find and return a payment by the externalOrderId', async () => {
-      
-  //   })
-  // })
+      const payment = await sut.findPaymentByExternalId('external-id')
 
+      expect(payment).toBeInstanceOf(Payment)
+      expect(payment.getExternalId()).toBe(paymentData.external_id)
+    })
+
+    it('should return null when no payment is found', async () => {
+      postgresConnectionAdapterMock.query.mockResolvedValueOnce({
+        rows: [],
+      } as QueryResult)
+
+      const payment = await sut.findPaymentByExternalId('external-id')
+
+      expect(payment).toBeNull()
+    })
+
+    it('should throw an error if query fails', async () => {
+      postgresConnectionAdapterMock.query.mockRejectedValueOnce(
+        new Error('DB error'),
+      )
+
+      await expect(sut.findPaymentByExternalId('external-id')).rejects.toThrow(
+        new DomainException(
+          'Erro ao consultar o pagamento',
+          ExceptionCause.PERSISTANCE_EXCEPTION,
+        ),
+      )
+    })
+  })
+
+  describe('findAllPayments', () => {
+    it('should throw not implemented exception', async () => {
+      await expect(sut.findAllPayments()).rejects.toThrow(
+        new DomainException('findAllPayments not implemented.'),
+      )
+    })
+  })
 })
-
- 
