@@ -100,7 +100,3 @@ describe('GetPaymentUseCase', () => {
     )
   })
 })
-
-
-
-//tes
