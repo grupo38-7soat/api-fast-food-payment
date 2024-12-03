@@ -16,12 +16,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/pedidos/6/pagamento",
+							"raw": "http://localhost:8001/pedidos/6/pagamento",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3000",
+							"port": "8001",
 							"path": [
 								"pedidos",
 								"6",
@@ -47,12 +47,12 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/checkout",
+							"raw": "http://localhost:8001/checkout",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3000",
+							"port": "8001",
 							"path": [
 								"checkout"
 							]
@@ -75,12 +75,12 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/pedidos/webhook-pagamento",
+							"raw": "http://localhost:/pedidos/webhook-pagamento",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "3000",
+							"port": "8001",
 							"path": [
 								"pedidos",
 								"webhook-pagamento"
@@ -101,12 +101,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/health",
+					"raw": "http://localhost:8001/health",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "3000",
+					"port": "8001",
 					"path": [
 						"health"
 					]

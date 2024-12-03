@@ -13,7 +13,7 @@
     "test": "export STAGE=test && jest --noStackTrace --runInBand --silent --passWithNoTests --forceExit --detectOpenHandles",
     "test:win": "set STAGE=test && jest --noStackTrace --runInBand --silent --passWithNoTests --forceExit --detectOpenHandles",
     "test:watch": "export STAGE=test && jest --noStackTrace --runInBand --passWithNoTests --forceExit --detectOpenHandles --watch",
-    "test:cov": "export STAGE=test && jest --noStackTrace --runInBand --passWithNoTests --forceExit --detectOpenHandles --coverage --no-cache",
+    "test:cov": "set STAGE=test && jest --noStackTrace --runInBand --passWithNoTests --forceExit --detectOpenHandles --coverage --no-cache",
     "lint": "npx eslint --fix --ignore-path .eslintignore --ext .js,.ts ."
   },
   "dependencies": {
