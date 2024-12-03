@@ -144,7 +144,47 @@ describe('CreatePaymentUseCase', () => {
   })
 
   it('should publish cancellation message to message broker if payment creation fails', async () => {
-    paymentSolutionMock.createPayment.mockResolvedValue(null);
+    const external: PaymentOutput = {
+      additional_info: {
+        items: [{ category_id: '1', description: '', id: '1', picture_url: '', quantity: '1', title: '', unit_price: '10'  }],
+        payer: {
+          first_name: 'nome'
+        }
+      },
+      collector_id: 1,
+      coupon_amount: 10,
+      currency_id: 'real',
+      date_approved: '',
+      date_created: '',
+      date_last_updated: '',
+      date_of_expiration: '',
+      description: '',
+      external_reference: '',
+      id: 1,
+      installments: 1,
+      issuer_id: '',
+      notification_url: '',
+      operation_type: '',
+      payment_method: {
+        id: 'randomUUID',
+        issuer_id: '1',
+        type: PaymentType.PIX
+      },
+      payment_method_id: '',
+      payment_type_id: '',
+      point_of_interaction: {
+        transaction_data: {
+          qr_code: 'qr-code',
+          qr_code_base64: '',
+          ticket_url: 'ticket-url',
+        }
+      },
+      status: ExternalPaymentStatus.approved,
+      status_detail: '',
+      transaction_amount: 1,
+      transaction_amount_refunded: 1
+    }
+    paymentSolutionMock.createPayment.mockResolvedValue(external);
 
     const input = {
       orderId: 1,
@@ -156,10 +196,9 @@ describe('CreatePaymentUseCase', () => {
     await sut.execute(input);
 
     expect(messageBrokerMock.publish).toHaveBeenCalledWith(
-      expect.any(String), 
-      expect.objectContaining({
-        payload: { orderId: '1', status: 'CANCELADO' },
-      })
+      
+      {"payload": {"orderId": "1", "status": "CANCELADO"}}
+      
     )
   })
 })
