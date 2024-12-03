@@ -20,7 +20,6 @@ describe('CreatePaymentUseCase', () => {
     let messageBrokerMock: jest.Mocked<IMessageBroker>
     let sut: CreatePaymentUseCase
   
-
   beforeAll(() => {
     paymentRepositoryMock = {
       savePayment: jest.fn(),
@@ -29,12 +28,15 @@ describe('CreatePaymentUseCase', () => {
       findPaymentByOrderId: jest.fn(),
       findPaymentByExternalId: jest.fn()
     } as unknown as jest.Mocked<IPaymentRepository>
+
     paymentSolutionMock = {
       createPayment: jest.fn()
     } as unknown as jest.Mocked<IPaymentSolution>
+
     messageBrokerMock = {
-        publish: jest.fn(),
-      } as unknown as jest.Mocked<IMessageBroker>
+      publish: jest.fn(),
+    } as unknown as jest.Mocked<IMessageBroker>
+
     sut = new CreatePaymentUseCase(paymentRepositoryMock, paymentSolutionMock, messageBrokerMock)
   })
 
@@ -55,7 +57,7 @@ describe('CreatePaymentUseCase', () => {
       orderId: 1,
       orderAmount: 100,
       items: [],
-      payment: {type: null}
+      payment: { type: null }
     }
 
     await expect(sut.execute(input)).rejects.toThrow(
@@ -92,7 +94,7 @@ describe('CreatePaymentUseCase', () => {
       date_last_updated: '',
       date_of_expiration: '',
       description: '',
-      external_reference: '',
+      external_reference: '123',
       id: 1,
       installments: 1,
       issuer_id: '',
@@ -159,7 +161,7 @@ describe('CreatePaymentUseCase', () => {
       date_last_updated: '',
       date_of_expiration: '',
       description: '',
-      external_reference: '',
+      external_reference: '123',
       id: 1,
       installments: 1,
       issuer_id: '',
@@ -184,6 +186,7 @@ describe('CreatePaymentUseCase', () => {
       transaction_amount: 1,
       transaction_amount_refunded: 1
     }
+
     paymentSolutionMock.createPayment.mockResolvedValue(external);
 
     const input = {
@@ -193,60 +196,17 @@ describe('CreatePaymentUseCase', () => {
       payment: { type: PaymentType.PIX },
     }
 
-    await sut.execute(input);
+    paymentSolutionMock.createPayment.mockRejectedValueOnce(new Error('Payment creation failed'));
+
+    await expect(sut.execute(input)).rejects.toThrow('Payment creation failed');
 
     expect(messageBrokerMock.publish).toHaveBeenCalledWith(
-      
-      {"payload": {"orderId": "1", "status": "CANCELADO"}}
-      
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          orderId: '1',
+          status: 'CANCELADO',
+        })
+      })
     )
   })
 })
-
-
-// import { CreatePaymentUseCase, IPaymentSolution } from '@core/application/use-cases'
-// import { IPaymentRepository } from '@core/domain/repositories';
-// import { IMessageBroker } from '@core/application/message-broker';
-
-// describe('CreatePaymentUseCase', () => {
-//     let paymentRepositoryMock: jest.Mocked<IPaymentRepository>
-//     let paymentSolutionMock: jest.Mocked<IPaymentSolution>
-//     let messageBrokerMock: jest.Mocked<IMessageBroker>
-//     let sut: CreatePaymentUseCase
-  
-
-//   beforeAll(() => {
-//     paymentRepositoryMock = {
-//       savePayment: jest.fn(),
-//       updatePaymentStatus: jest.fn(),
-//       findAllPayments: jest.fn(),
-//       findPaymentByOrderId: jest.fn(),
-//       findPaymentByExternalId: jest.fn()
-//     } as unknown as jest.Mocked<IPaymentRepository>
-//     paymentSolutionMock = {
-//       createPayment: jest.fn()
-//     } as unknown as jest.Mocked<IPaymentSolution>
-//     messageBrokerMock = {
-//         publish: jest.fn(),
-//       } as unknown as jest.Mocked<IMessageBroker>
-//     sut = new CreatePaymentUseCase(paymentRepositoryMock, paymentSolutionMock, messageBrokerMock)
-//   })
-
-//   afterEach(() => {
-//     jest.clearAllMocks()
-//   })
-
-//   afterAll(() => {
-//     jest.resetAllMocks()
-//   })
-
-//   it('should be defined', () => {
-//     expect(sut).toBeDefined()
-//   })
-
-//   describe('execute method', () => {
-//     it('should ...', () => {
-//       // alguma coisa
-//     })
-//   })
-// })
