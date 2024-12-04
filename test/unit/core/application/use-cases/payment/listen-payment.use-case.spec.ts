@@ -1,9 +1,17 @@
+import { globalEnvs } from '@config/envs/global'
 import { ListenPaymentUseCase } from '@core/application/use-cases'
 import { IPaymentRepository } from '@core/domain/repositories'
 import { IMessageBroker } from '@core/application/message-broker'
-import { ExternalPaymentStatus, IPaymentSolution, PaymentOutput } from '@core/application/use-cases/types'
-import { Payment, PaymentCurrentStatus, PaymentType } from '@core/domain/entities'
-import { globalEnvs } from '@config/envs/global'
+import {
+  ExternalPaymentStatus,
+  IPaymentSolution,
+  PaymentOutput,
+} from '@core/application/use-cases/types'
+import {
+  Payment,
+  PaymentCurrentStatus,
+  PaymentType,
+} from '@core/domain/entities'
 
 jest.mock('crypto', () => ({
   randomUUID: jest.fn(() => 'mocked-uuid'),
@@ -26,14 +34,18 @@ describe('ListenPaymentUseCase', () => {
 
     paymentSolutionMock = {
       createPayment: jest.fn(),
-      findPayment: jest.fn(), // Mocking the findPayment method
+      findPayment: jest.fn(),
     } as unknown as jest.Mocked<IPaymentSolution>
 
     messageBrokerMock = {
       publish: jest.fn(),
     } as unknown as jest.Mocked<IMessageBroker>
 
-    sut = new ListenPaymentUseCase(paymentRepositoryMock, paymentSolutionMock, messageBrokerMock)
+    sut = new ListenPaymentUseCase(
+      paymentRepositoryMock,
+      paymentSolutionMock,
+      messageBrokerMock,
+    )
   })
 
   afterEach(() => {
@@ -76,15 +88,25 @@ describe('ListenPaymentUseCase', () => {
       'external-id',
       '2024-12-01T00:00:00Z',
       '2024-12-01T00:00:00Z',
-      123
+      123,
     )
 
     const externalPayment: PaymentOutput = {
       additional_info: {
-        items: [{ category_id: '1', description: '', id: '1', picture_url: '', quantity: '1', title: '', unit_price: '10' }],
+        items: [
+          {
+            category_id: '1',
+            description: '',
+            id: '1',
+            picture_url: '',
+            quantity: '1',
+            title: '',
+            unit_price: '10',
+          },
+        ],
         payer: {
-          first_name: 'nome'
-        }
+          first_name: 'nome',
+        },
       },
       collector_id: 1,
       coupon_amount: 10,
@@ -94,7 +116,7 @@ describe('ListenPaymentUseCase', () => {
       date_last_updated: '',
       date_of_expiration: '',
       description: '',
-      external_reference: '123', // This matches the externalPaymentId
+      external_reference: '123',
       id: 1,
       installments: 1,
       issuer_id: '',
@@ -103,7 +125,7 @@ describe('ListenPaymentUseCase', () => {
       payment_method: {
         id: 'randomUUID',
         issuer_id: '1',
-        type: PaymentType.PIX
+        type: PaymentType.PIX,
       },
       payment_method_id: '',
       payment_type_id: '',
@@ -112,12 +134,12 @@ describe('ListenPaymentUseCase', () => {
           qr_code: 'qr-code',
           qr_code_base64: '',
           ticket_url: 'ticket-url',
-        }
+        },
       },
-      status: ExternalPaymentStatus.cancelled, // Set to cancelled
+      status: ExternalPaymentStatus.cancelled,
       status_detail: '',
       transaction_amount: 1,
-      transaction_amount_refunded: 1
+      transaction_amount_refunded: 1,
     }
 
     paymentRepositoryMock.findPaymentByExternalId.mockResolvedValue(payment)
@@ -125,20 +147,29 @@ describe('ListenPaymentUseCase', () => {
 
     await sut.execute({ action, externalPaymentId })
 
-    expect(payment.rejectPayment).toHaveBeenCalled()
     expect(paymentRepositoryMock.updatePaymentStatus).toHaveBeenCalledWith(
       'payment-id',
       PaymentCurrentStatus.REJEITADO,
-      expect.any(String)
+      expect.any(String),
     )
-    expect(messageBrokerMock.publish).toHaveBeenCalledWith(globalEnvs.messageBroker.orderQueue, {
-      id: 'mocked-uuid',
-      payload: {
-        orderId: 'order-id', // Ensure orderId is correctly set
-        status: 'CANCELADO',
-        payment: { id: 'payment-id' },
+    expect(messageBrokerMock.publish).toHaveBeenCalledWith(
+      globalEnvs.messageBroker.orderQueue,
+      {
+        id: 'mocked-uuid',
+        payload: {
+          orderId: 123,
+          status: 'CANCELADO',
+          payment: {
+            id: 'payment-id',
+            externalId: 'external-id',
+            type: 'PIX',
+            paymentStatus: 'REJEITADO',
+            effectiveDate: '2024-11-30T21:00:00.000-03:00',
+            updatedAt: '2024-11-30T21:00:00.000-03:00',
+          },
+        },
       },
-    })
+    )
   })
 
   it('should authorize payment and publish received if status is approved', async () => {
@@ -152,15 +183,25 @@ describe('ListenPaymentUseCase', () => {
       'external-id',
       '2024-12-01T00:00:00Z',
       '2024-12-01T00:00:00Z',
-      123
+      123,
     )
 
     const externalPayment: PaymentOutput = {
       additional_info: {
-        items: [{ category_id: '1', description: '', id: '1', picture_url: '', quantity: '1', title: '', unit_price: '10' }],
+        items: [
+          {
+            category_id: '1',
+            description: '',
+            id: '1',
+            picture_url: '',
+            quantity: '1',
+            title: '',
+            unit_price: '10',
+          },
+        ],
         payer: {
-          first_name: 'nome'
-        }
+          first_name: 'nome',
+        },
       },
       collector_id: 1,
       coupon_amount: 10,
@@ -170,7 +211,7 @@ describe('ListenPaymentUseCase', () => {
       date_last_updated: '',
       date_of_expiration: '',
       description: '',
-      external_reference: '123', // Match with externalPaymentId
+      external_reference: '123',
       id: 1,
       installments: 1,
       issuer_id: '',
@@ -179,7 +220,7 @@ describe('ListenPaymentUseCase', () => {
       payment_method: {
         id: 'randomUUID',
         issuer_id: '1',
-        type: PaymentType.PIX
+        type: PaymentType.PIX,
       },
       payment_method_id: '',
       payment_type_id: '',
@@ -188,12 +229,12 @@ describe('ListenPaymentUseCase', () => {
           qr_code: 'qr-code',
           qr_code_base64: '',
           ticket_url: 'ticket-url',
-        }
+        },
       },
-      status: ExternalPaymentStatus.approved, // Set to approved
+      status: ExternalPaymentStatus.approved,
       status_detail: '',
       transaction_amount: 1,
-      transaction_amount_refunded: 1
+      transaction_amount_refunded: 1,
     }
 
     paymentRepositoryMock.findPaymentByExternalId.mockResolvedValue(payment)
@@ -201,20 +242,29 @@ describe('ListenPaymentUseCase', () => {
 
     await sut.execute({ action, externalPaymentId })
 
-    expect(payment.authorizePayment).toHaveBeenCalled()
     expect(paymentRepositoryMock.updatePaymentStatus).toHaveBeenCalledWith(
       'payment-id',
       PaymentCurrentStatus.AUTORIZADO,
-      expect.any(String)
+      expect.any(String),
     )
-    expect(messageBrokerMock.publish).toHaveBeenCalledWith(globalEnvs.messageBroker.orderQueue, {
-      id: 'mocked-uuid',
-      payload: {
-        orderId: 'order-id', // Ensure orderId is correctly set
-        status: 'RECEBIDO',
-        payment: { id: 'payment-id' },
+    expect(messageBrokerMock.publish).toHaveBeenCalledWith(
+      globalEnvs.messageBroker.orderQueue,
+      {
+        id: 'mocked-uuid',
+        payload: {
+          orderId: 123,
+          status: 'RECEBIDO',
+          payment: {
+            id: 'payment-id',
+            externalId: 'external-id',
+            type: 'PIX',
+            paymentStatus: 'AUTORIZADO',
+            effectiveDate: '2024-11-30T21:00:00.000-03:00',
+            updatedAt: '2024-11-30T21:00:00.000-03:00',
+          },
+        },
       },
-    })
+    )
   })
 
   it('should not update payment if status is already correct', async () => {
@@ -222,21 +272,31 @@ describe('ListenPaymentUseCase', () => {
     const externalPaymentId = '123'
     const payment = new Payment(
       PaymentType.PIX,
-      PaymentCurrentStatus.PENDENTE,
+      PaymentCurrentStatus.AUTORIZADO,
       '2024-12-01T00:00:00Z',
       'payment-id',
       'external-id',
       '2024-12-01T00:00:00Z',
       '2024-12-01T00:00:00Z',
-      123
+      123,
     )
 
     const externalPayment: PaymentOutput = {
       additional_info: {
-        items: [{ category_id: '1', description: '', id: '1', picture_url: '', quantity: '1', title: '', unit_price: '10' }],
+        items: [
+          {
+            category_id: '1',
+            description: '',
+            id: '1',
+            picture_url: '',
+            quantity: '1',
+            title: '',
+            unit_price: '10',
+          },
+        ],
         payer: {
-          first_name: 'nome'
-        }
+          first_name: 'nome',
+        },
       },
       collector_id: 1,
       coupon_amount: 10,
@@ -246,7 +306,7 @@ describe('ListenPaymentUseCase', () => {
       date_last_updated: '',
       date_of_expiration: '',
       description: '',
-      external_reference: '123', // Match with externalPaymentId
+      external_reference: '123',
       id: 1,
       installments: 1,
       issuer_id: '',
@@ -255,7 +315,7 @@ describe('ListenPaymentUseCase', () => {
       payment_method: {
         id: 'randomUUID',
         issuer_id: '1',
-        type: PaymentType.PIX
+        type: PaymentType.PIX,
       },
       payment_method_id: '',
       payment_type_id: '',
@@ -264,12 +324,12 @@ describe('ListenPaymentUseCase', () => {
           qr_code: 'qr-code',
           qr_code_base64: '',
           ticket_url: 'ticket-url',
-        }
+        },
       },
-      status: ExternalPaymentStatus.approved, // Correct status
+      status: ExternalPaymentStatus.approved,
       status_detail: '',
       transaction_amount: 1,
-      transaction_amount_refunded: 1
+      transaction_amount_refunded: 1,
     }
 
     paymentRepositoryMock.findPaymentByExternalId.mockResolvedValue(payment)
@@ -277,7 +337,6 @@ describe('ListenPaymentUseCase', () => {
 
     await sut.execute({ action, externalPaymentId })
 
-    expect(payment.rejectPayment).not.toHaveBeenCalled()
     expect(paymentRepositoryMock.updatePaymentStatus).not.toHaveBeenCalled()
     expect(messageBrokerMock.publish).not.toHaveBeenCalled()
   })

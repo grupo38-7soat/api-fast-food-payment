@@ -1,12 +1,18 @@
-import { GetPaymentUseCase } from '@core/application/use-cases'
-import { IPaymentRepository } from '@core/domain/repositories'
 import { DomainException, ExceptionCause } from '@core/domain/base'
-import { GetPaymentInput, GetPaymentOutput } from '@core/application/use-cases/types'
-import { Payment, PaymentCurrentStatus, PaymentType } from '@core/domain/entities'
+import {
+  Payment,
+  PaymentCurrentStatus,
+  PaymentType,
+} from '@core/domain/entities'
+import { IPaymentRepository } from '@core/domain/repositories'
+import { GetPaymentUseCase } from '@core/application/use-cases'
+import {
+  GetPaymentInput,
+  GetPaymentOutput,
+} from '@core/application/use-cases/types'
 
-// Mocking dependencies
 jest.mock('@core/application/helpers', () => ({
-  formatDateWithTimezone: jest.fn(() => 'formatted-date'),
+  formatDateWithTimezone: jest.fn(() => '2024-12-01T00:00:00Z'),
 }))
 
 describe('GetPaymentUseCase', () => {
@@ -47,59 +53,46 @@ describe('GetPaymentUseCase', () => {
         'external-id',
         '2024-12-01T00:00:00Z',
         '2024-12-01T00:00:00Z',
-        123
+        123,
       )
 
       paymentRepositoryMock.findPaymentByOrderId.mockResolvedValue(mockPayment)
 
       const result: GetPaymentOutput = await sut.execute(input)
 
-      expect(paymentRepositoryMock.findPaymentByOrderId).toHaveBeenCalledWith(123)
-      expect(mockPayment.toJson).toHaveBeenCalled()
+      expect(paymentRepositoryMock.findPaymentByOrderId).toHaveBeenCalledWith(
+        123,
+      )
       expect(result).toEqual({
         id: 'payment-id',
         type: PaymentType.PIX,
-        status: PaymentCurrentStatus.AUTORIZADO,
+        status: PaymentCurrentStatus.PENDENTE,
         effectiveDate: '2024-12-01T00:00:00Z',
         externalId: 'external-id',
       })
     })
-  })
 
-  it('should throw DomainException if orderId is missing', async () => {
-    const input: GetPaymentInput = { orderId: null } 
+    it('should throw DomainException if orderId is missing', async () => {
+      const input: GetPaymentInput = { orderId: null }
 
-    await expect(sut.execute(input)).rejects.toThrow(
-      new DomainException(
-        'O id do pedido deve ser informado',
-        ExceptionCause.MISSING_DATA,
-      ),
-    )
-  })
+      await expect(sut.execute(input)).rejects.toThrow(
+        new DomainException(
+          'O id do pedido deve ser informado',
+          ExceptionCause.MISSING_DATA,
+        ),
+      )
+    })
 
-  it('should throw DomainException if payment is not found', async () => {
-    const mockPayment = new Payment(
-      PaymentType.PIX,
-      PaymentCurrentStatus.PENDENTE,
-      '2024-12-01T00:00:00Z',
-      'payment-id',
-      'external-id',
-      '2024-12-01T00:00:00Z',
-      '2024-12-01T00:00:00Z',
-      3
-    )
+    it('should throw DomainException if payment is not found', async () => {
+      const input: GetPaymentInput = { orderId: 1 }
+      paymentRepositoryMock.findPaymentByOrderId.mockResolvedValue(null)
 
-    const input: GetPaymentInput = { orderId: 1 }
-    paymentRepositoryMock.findPaymentByOrderId.mockResolvedValue(mockPayment)
-
-    await expect(sut.execute(input)).rejects.toThrow(
-      new DomainException(
-        'Pagamento não encontrado',
-        ExceptionCause.NOTFOUND_EXCEPTION,
-      ),
-    )
+      await expect(sut.execute(input)).rejects.toThrow(
+        new DomainException(
+          'Pagamento não encontrado',
+          ExceptionCause.NOTFOUND_EXCEPTION,
+        ),
+      )
+    })
   })
 })
-
-
-///testes
