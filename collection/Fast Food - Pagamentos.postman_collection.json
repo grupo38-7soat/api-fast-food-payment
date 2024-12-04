@@ -24,12 +24,12 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:6000/pagamentos/webhook",
+							"raw": "http://localhost:8080/pagamentos/webhook",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "6000",
+							"port": "8080",
 							"path": [
 								"pagamentos",
 								"webhook"
@@ -44,12 +44,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:6000/pagamentos/0344b589-551b-4d5a-a7e6-d2b5c9349805",
+							"raw": "http://localhost:8080/pagamentos/0344b589-551b-4d5a-a7e6-d2b5c9349805",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
-							"port": "6000",
+							"port": "8080",
 							"path": [
 								"pagamentos",
 								"0344b589-551b-4d5a-a7e6-d2b5c9349805"
@@ -66,12 +66,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:6000/health",
+					"raw": "http://localhost:8080/health",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "6000",
+					"port": "8080",
 					"path": [
 						"health"
 					]

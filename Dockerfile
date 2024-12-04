@@ -10,6 +10,6 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
-EXPOSE 6000
+EXPOSE 8080
 
 CMD ["npm", "start"]

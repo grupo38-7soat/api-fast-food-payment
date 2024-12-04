@@ -5,7 +5,7 @@ dotenv.config({
 })
 
 const apiEnvs = {
-  serverPort: Number(process.env.SERVER_PORT) || 6000,
+  serverPort: Number(process.env.SERVER_PORT) || 8080,
   stage: process.env.NODE_ENV,
 }
 
