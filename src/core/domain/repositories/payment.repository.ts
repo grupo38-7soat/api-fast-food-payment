@@ -14,7 +14,6 @@ export interface IPaymentRepository {
     status: PaymentCurrentStatus,
     updatedAt: string,
   ): Promise<void>
-  findAllPayments(params?: PaymentParams): Promise<Payment[]>
-  findPaymentByOrderId(orderId: number): Promise<Payment>
+  findPaymentById(paymentId: string): Promise<Payment>
   findPaymentByExternalId(externalId: string): Promise<Payment>
 }

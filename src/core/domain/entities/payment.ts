@@ -23,6 +23,7 @@ export type SerializedPayment = {
   effectiveDate: string
   updatedAt: string
   externalId: string
+  orderId: number
 }
 
 export class Payment {
@@ -150,6 +151,7 @@ export class Payment {
       paymentStatus: this.getPaymentStatus(),
       effectiveDate: formatDateWithTimezone(new Date(this.effectiveDate)),
       updatedAt: formatDateWithTimezone(new Date(this.updatedAt)),
+      orderId: this.orderId,
     }
   }
 }

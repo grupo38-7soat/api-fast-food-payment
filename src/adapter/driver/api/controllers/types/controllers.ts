@@ -8,10 +8,6 @@ export interface IHealthController {
 }
 
 export interface IPaymentController {
-  createPayment(
-    request: ExpressRequest,
-    response: ExpressResponse,
-  ): Promise<ExpressResponse>
   getPayment(
     request: ExpressRequest,
     response: ExpressResponse,

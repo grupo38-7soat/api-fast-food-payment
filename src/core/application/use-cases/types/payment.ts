@@ -38,7 +38,7 @@ export type CreatePaymentOutput = {
 }
 
 export type GetPaymentInput = {
-  orderId: number
+  paymentId: string
 }
 
 export type GetPaymentOutput = {
@@ -47,6 +47,7 @@ export type GetPaymentOutput = {
   type: PaymentType
   effectiveDate: string
   externalId: string
+  orderId: number
 }
 
 export type ListenPaymentInput = {

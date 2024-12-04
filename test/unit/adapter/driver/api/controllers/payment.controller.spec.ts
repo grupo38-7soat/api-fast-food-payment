@@ -1,15 +1,12 @@
 import { Request as ExpressRequest, Response as ExpressResponse } from 'express'
 import { DomainException, ExceptionCause } from '@core/domain/base'
 import {
-    IGetPaymentUseCase,
-    IListenPaymentUseCase,
-    ICreatePaymentUseCase,
+  IGetPaymentUseCase,
+  IListenPaymentUseCase,
 } from '@core/application/use-cases'
-
 import { PaymentController } from '@adapter/driver/api/controllers'
 
 describe('PaymentController', () => {
-  let createPaymentUseCaseMock: ICreatePaymentUseCase
   let getPaymentUseCaseMock: IGetPaymentUseCase
   let listenPaymentUseCaseMock: IListenPaymentUseCase
   let sut: PaymentController
@@ -19,26 +16,19 @@ describe('PaymentController', () => {
   const errorCause = ExceptionCause.UNKNOWN_EXCEPTION
 
   beforeAll(() => {
-    createPaymentUseCaseMock = {
-      execute: jest.fn(),
-    }
     getPaymentUseCaseMock = {
       execute: jest.fn(),
     }
     listenPaymentUseCaseMock = {
       execute: jest.fn(),
     }
-  
+
     requestMock = {}
     responseMock = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     } as unknown as jest.Mocked<ExpressResponse>
-    sut = new PaymentController(
-        createPaymentUseCaseMock,
-        getPaymentUseCaseMock,
-        listenPaymentUseCaseMock
-    )
+    sut = new PaymentController(getPaymentUseCaseMock, listenPaymentUseCaseMock)
   })
 
   afterEach(() => {
@@ -53,49 +43,15 @@ describe('PaymentController', () => {
     expect(sut).toBeDefined()
   })
 
-  describe('createPayment', () => {
+  describe('getPayment', () => {
+    const params = {
+      id: '1',
+    }
+
     const body = {
       items: 'some_info',
       orderAmount: 1,
-      orderId: 1,
-      payment: 'some_info'
-    }
-
-    it('should return error response if any exception occurs', async () => {
-      jest
-        .spyOn(createPaymentUseCaseMock, 'execute')
-        .mockRejectedValueOnce(new DomainException(errorMessage, errorCause))
-      requestMock.body = body
-      await sut.createPayment(requestMock as ExpressRequest, responseMock)
-      expect(responseMock.status).toHaveBeenCalled()
-      expect(responseMock.json).toHaveBeenCalled()
-    })
-
-    it('should return success response if product was created', async () => {
-      requestMock.body = body
-      jest
-        .spyOn(createPaymentUseCaseMock, 'execute')
-        .mockResolvedValueOnce({ id: 1, ...requestMock.body })
-      await sut.createPayment(requestMock as ExpressRequest, responseMock)
-      expect(createPaymentUseCaseMock.execute).toHaveBeenCalledWith(
-        requestMock.body,
-      )
-      expect(responseMock.status).toHaveBeenCalledWith(200)
-      expect(responseMock.json).toHaveBeenCalledWith({
-        data: { id: 1, ...requestMock.body },
-      })
-    })
-  })
-
-  describe('getPayment', () => {
-    const params = {
-      id: '1'
-    }
-
-    const body = {
-        items: 'some_info',
-        orderAmount: 1,
-        payment: 'some_info'
+      payment: 'some_info',
     }
 
     it('should return error response if any exception occurs', async () => {
@@ -118,16 +74,16 @@ describe('PaymentController', () => {
       await sut.getPayment(requestMock as ExpressRequest, responseMock)
       expect(responseMock.status).toHaveBeenCalledWith(200)
       expect(responseMock.json).toHaveBeenCalledWith({
-        data: {id: 1, ...requestMock.body},
+        data: { id: 1, ...requestMock.body },
       })
     })
   })
 
   describe('listenPayment', () => {
     const body = {
-        action: '',
-        externalPaymentId: '1'
-      }
+      action: '',
+      externalPaymentId: '1',
+    }
 
     it('should return error response if any exception occurs', async () => {
       jest
@@ -151,5 +107,4 @@ describe('PaymentController', () => {
       })
     })
   })
-
 })

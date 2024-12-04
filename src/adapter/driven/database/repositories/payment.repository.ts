@@ -3,7 +3,7 @@ import {
   PaymentCurrentStatus,
   PaymentType,
 } from '@core/domain/entities/payment'
-import { IPaymentRepository, PaymentParams } from '@core/domain/repositories'
+import { IPaymentRepository } from '@core/domain/repositories'
 import { DomainException, ExceptionCause } from '@core/domain/base'
 import { PostgresConnectionAdapter } from '../postgres-connection.adapter'
 
@@ -74,19 +74,14 @@ export class PaymentRepository implements IPaymentRepository {
     }
   }
 
-  async findAllPayments(params?: PaymentParams): Promise<Payment[]> {
-    console.log(params)
-    throw new DomainException('findAllPayments not implemented.')
-  }
-
-  async findPaymentByOrderId(orderId: number): Promise<Payment> {
+  async findPaymentById(paymentId: string): Promise<Payment> {
     try {
       const { rows } = await this.postgresConnectionAdapter.query<PaymentData>(
         `
             SELECT p.id, p.status, p.type, p.effective_date, p.updated_at, p.external_id, p.order_id FROM ${this.table} p
-            WHERE p.order_id = $1::integer;
+            WHERE p.id = $1::uuid;
           `,
-        [orderId],
+        [paymentId],
       )
       if (!rows || !rows.length) return null
       return new Payment(
@@ -97,7 +92,7 @@ export class PaymentRepository implements IPaymentRepository {
         rows[0].external_id,
         rows[0].effective_date,
         rows[0].updated_at,
-        rows[0].order_id,
+        Number(rows[0].order_id),
       )
     } catch (error) {
       console.error(error)

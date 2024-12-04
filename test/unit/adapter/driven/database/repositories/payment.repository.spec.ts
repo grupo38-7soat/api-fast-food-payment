@@ -123,7 +123,7 @@ describe('PaymentRepository', () => {
     })
   })
 
-  describe('findPaymentByOrderId', () => {
+  describe('findPaymentById', () => {
     it('should return payment when found', async () => {
       const paymentData = {
         id: 'payment-id',
@@ -139,7 +139,7 @@ describe('PaymentRepository', () => {
         rows: [paymentData],
       } as QueryResult)
 
-      const payment = await sut.findPaymentByOrderId(123)
+      const payment = await sut.findPaymentById('some_uuid')
 
       expect(payment).toBeInstanceOf(Payment)
       expect(payment.getId()).toBe(paymentData.id)
@@ -150,7 +150,7 @@ describe('PaymentRepository', () => {
         rows: [],
       } as QueryResult)
 
-      const payment = await sut.findPaymentByOrderId(123)
+      const payment = await sut.findPaymentById('some_uuid')
 
       expect(payment).toBeNull()
     })
@@ -160,7 +160,7 @@ describe('PaymentRepository', () => {
         new Error('DB error'),
       )
 
-      await expect(sut.findPaymentByOrderId(123)).rejects.toThrow(
+      await expect(sut.findPaymentById('some_uuid')).rejects.toThrow(
         new DomainException(
           'Erro ao consultar o pagamento',
           ExceptionCause.PERSISTANCE_EXCEPTION,
@@ -211,14 +211,6 @@ describe('PaymentRepository', () => {
           'Erro ao consultar o pagamento',
           ExceptionCause.PERSISTANCE_EXCEPTION,
         ),
-      )
-    })
-  })
-
-  describe('findAllPayments', () => {
-    it('should throw not implemented exception', async () => {
-      await expect(sut.findAllPayments()).rejects.toThrow(
-        new DomainException('findAllPayments not implemented.'),
       )
     })
   })

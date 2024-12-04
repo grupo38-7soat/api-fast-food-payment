@@ -20,16 +20,6 @@ export const healthRoutes: IRouteProps[] = [
 
 export const paymentRoutes: IRouteProps[] = [
   {
-    resource: '/pagamentos',
-    method: HttpMethod.POST,
-    middleware: (
-      _request: ExpressRequest,
-      _response: ExpressResponse,
-      next: ExpressNextFuction,
-    ) => next(),
-    handler: 'createPayment',
-  },
-  {
     resource: '/pagamentos/:id',
     method: HttpMethod.GET,
     middleware: (

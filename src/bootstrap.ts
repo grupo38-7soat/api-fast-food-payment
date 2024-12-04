@@ -43,7 +43,6 @@ const listenPaymentUseCase = new ListenPaymentUseCase(
 // controllers
 const healthController = new HealthController()
 const paymentController = new PaymentController(
-  createPaymentUseCase,
   getPaymentUseCase,
   listenPaymentUseCase,
 )

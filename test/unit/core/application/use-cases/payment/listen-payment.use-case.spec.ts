@@ -28,7 +28,7 @@ describe('ListenPaymentUseCase', () => {
       savePayment: jest.fn(),
       updatePaymentStatus: jest.fn(),
       findAllPayments: jest.fn(),
-      findPaymentByOrderId: jest.fn(),
+      findPaymentById: jest.fn(),
       findPaymentByExternalId: jest.fn(),
     } as unknown as jest.Mocked<IPaymentRepository>
 
@@ -166,6 +166,7 @@ describe('ListenPaymentUseCase', () => {
             paymentStatus: 'REJEITADO',
             effectiveDate: '2024-11-30T21:00:00.000-03:00',
             updatedAt: '2024-11-30T21:00:00.000-03:00',
+            orderId: 123,
           },
         },
       },
@@ -261,6 +262,7 @@ describe('ListenPaymentUseCase', () => {
             paymentStatus: 'AUTORIZADO',
             effectiveDate: '2024-11-30T21:00:00.000-03:00',
             updatedAt: '2024-11-30T21:00:00.000-03:00',
+            orderId: 123,
           },
         },
       },

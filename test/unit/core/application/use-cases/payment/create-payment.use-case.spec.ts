@@ -31,7 +31,7 @@ describe('CreatePaymentUseCase', () => {
       savePayment: jest.fn(),
       updatePaymentStatus: jest.fn(),
       findAllPayments: jest.fn(),
-      findPaymentByOrderId: jest.fn(),
+      findPaymentById: jest.fn(),
       findPaymentByExternalId: jest.fn(),
     } as unknown as jest.Mocked<IPaymentRepository>
 

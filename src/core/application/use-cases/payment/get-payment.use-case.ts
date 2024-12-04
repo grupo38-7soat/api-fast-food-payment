@@ -6,14 +6,14 @@ import { formatDateWithTimezone } from '@core/application/helpers'
 export class GetPaymentUseCase implements IGetPaymentUseCase {
   constructor(private readonly paymentRepository: IPaymentRepository) {}
 
-  async execute({ orderId }: GetPaymentInput): Promise<GetPaymentOutput> {
-    if (!orderId) {
+  async execute({ paymentId }: GetPaymentInput): Promise<GetPaymentOutput> {
+    if (!paymentId) {
       throw new DomainException(
-        'O id do pedido deve ser informado',
+        'O id do pagamento deve ser informado',
         ExceptionCause.MISSING_DATA,
       )
     }
-    const payment = await this.paymentRepository.findPaymentByOrderId(orderId)
+    const payment = await this.paymentRepository.findPaymentById(paymentId)
     if (!payment) {
       throw new DomainException(
         'Pagamento não encontrado',
@@ -26,6 +26,7 @@ export class GetPaymentUseCase implements IGetPaymentUseCase {
       paymentStatus: status,
       effectiveDate,
       externalId,
+      orderId,
     } = payment.toJson()
     return {
       id,
@@ -33,6 +34,7 @@ export class GetPaymentUseCase implements IGetPaymentUseCase {
       status,
       effectiveDate: formatDateWithTimezone(new Date(effectiveDate)),
       externalId,
+      orderId,
     }
   }
 }
