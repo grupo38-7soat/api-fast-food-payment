@@ -3,9 +3,9 @@
     "info": {
       "title": "Fast Food | Pagamento",
       "version": "1.0.0",
-      "description": "Documentation for your API"
+      "description": "Documentação da API de pagamentos do sistema de Fast Food"
     },
-    "baseUrl": "http://localhost:8001",
+    "baseUrl": "http://localhost:6000",
     "tags": [
       {
         "name": "Pagamento"
@@ -43,80 +43,17 @@
           }
         }
       },
-      "/checkout": {
-        "post": {
-          "tags": [
-            "Pedido"
-          ],
-          "summary": "Realiza um checkout",
-          "operationId": "CreatePayment",
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreatePaymentRequestBody"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Lista de pedidos",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/CreatePaymentResponseBody"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Erro na requisição",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/DefaultErrorResponse"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Recurso não encontrado",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/NotFoundErrorResponse"
-                  }
-                }
-              }
-            },
-            "500": {
-              "description": "Erro interno do servidor",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/DefaultErrorResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-
- 
-      "/pedidos/{id}/pagamento": {
+      "/pagamentos/{id}": {
         "get": {
           "tags": [
-            "Pedido"
+            "Pagamento"
           ],
           "summary": "Busca os detalhes do pagamento do pedido",
           "operationId": "getPayment",
           "parameters": [
             {
               "name": "id",
-              "description": "Id do pedido",
+              "description": "Id do pagamento",
               "in": "path",
               "required": true,
               "schema": {
@@ -168,10 +105,10 @@
           }
         }
       },
-      "/pedidos/webhook-pagamento": {
+      "/pagamentos/webhook": {
         "post": {
           "tags": [
-            "Pedido"
+            "Pagamento"
           ],
           "summary": "Recebe atualizações do pagamento vindas do Mercado Pago",
           "operationId": "listenPayment",
@@ -277,7 +214,7 @@
             }
           }
         },
-      
+
         "CreatePaymentRequestBody": {
           "type": "object",
           "properties": {
@@ -437,7 +374,6 @@
             }
           }
         },
-       
         "GetPaymentResponseBody": {
           "type": "object",
           "properties": {
@@ -480,6 +416,11 @@
                   "type": "string",
                   "description": "Id do pagamento do Mercado Pago",
                   "example": "1325544717"
+                },
+                "orderId": {
+                  "type": "string",
+                  "description": "Id do pedido associado",
+                  "example": "1"
                 }
               }
             }
