@@ -1,0 +1,83 @@
+{
+	"info": {
+		"_postman_id": "f46b98b8-822f-47e7-97a8-6996e2c275ea",
+		"name": "Fast Food | Pagamentos",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24951685"
+	},
+	"item": [
+		{
+			"name": "Pagamento",
+			"item": [
+				{
+					"name": "Webhook de pagamento",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"action\": \"payment.updated\",\r\n    \"data\": {\r\n        \"id\": \"1320441644\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:6000/pagamentos/webhook",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6000",
+							"path": [
+								"pagamentos",
+								"webhook"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Consultar status do pagamento",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:6000/pagamentos/0344b589-551b-4d5a-a7e6-d2b5c9349805",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "6000",
+							"path": [
+								"pagamentos",
+								"0344b589-551b-4d5a-a7e6-d2b5c9349805"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:6000/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "6000",
+					"path": [
+						"health"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
